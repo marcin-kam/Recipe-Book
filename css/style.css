@@ -1,0 +1,29 @@
+@import url('https://fonts.googleapis.com/css?family=Pacifico');
+
+@import url('https://fonts.googleapis.com/css?family=Lato');
+
+body {
+    background:     linear-gradient(
+      rgba(255, 255, 255, 0.7), 
+      rgba(255, 255, 255, 0.7)
+    ),url(https://static.pexels.com/photos/8844/red-lunch-green-knolling.jpg);
+  background-size: 100% auto;
+}
+
+h1{
+  text-align: center;
+  font-size: 75px;
+  font-weight: bold;
+  font-family: 'Pacifico';
+}
+
+#book{
+  padding-top: 20px;
+  margin: auto;
+  width: 75%;
+  font-family: 'Lato';
+}
+
+.btn-space{
+  margin-left: 5px;
+}

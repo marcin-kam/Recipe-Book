@@ -1,0 +1,201 @@
+var Modal = ReactBootstrap.Modal;
+var Accordion = ReactBootstrap.Accordion;
+var Panel = ReactBootstrap.Panel;
+var FormGroup = ReactBootstrap.FormGroup;
+var FormControl = ReactBootstrap.FormControl;
+var Button = ReactBootstrap.Button;
+
+var content = (typeof localStorage["RecipeBookContent"] != "undefined") ? JSON.parse(localStorage["RecipeBookContent"]) : [{name:'Scrambled eggs',time:15,ingredients:'eggs,corn,salt,pepper',prepare:'eggs on pan. add corn, salt and pepper' },
+               {name:'Tosts',time:5,ingredients:'bread,ham,tomato',prepare:'put ham and tomato on bread. bake in the oven.' }];
+
+var Add = React.createClass({
+  getInitialState: function(){
+    return {
+      name: '',time: 0,ingredients: '',prepare: '',modal: false
+    }
+  },
+  openModal: function(){
+    this.setState({
+      modal: true
+    });
+  },
+  closeModal: function(){
+    this.setState({
+      modal: false
+    });
+  },
+  handleChangeName: function(e){
+    this.setState({name:e.target.value});
+  },
+  handleChangeTime: function(e){
+    this.setState({time:e.target.value});
+  },
+  handleChangeIngredients: function(e){
+    this.setState({ingredients:e.target.value});
+  },
+  handleChangePrepare: function(e){
+    this.setState({prepare: e.target.value});
+  },
+  handleSubmit: function(e){
+    this.props.onClick(this.state);
+    this.setState({
+      name: '',time: 0,ingredients: '',prepare: '',modal: false
+    });
+  },
+  handleCancel: function(){
+    this.setState({
+      name: '',time: 0,ingredients: '',prepare: '',modal: false
+    });
+  },
+  render : function(){
+    return(
+      <div>
+      <Button onClick={this.openModal} bsStyle="primary" bsSize="lg">Add recipe</Button>
+      <Modal show={this.state.modal} onHide={this.closeModal}>
+        <Modal.Header>
+          <Modal.Title>Recipe</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <form>
+            <FormGroup>
+              Name:<FormControl type="text" value={this.state.name} placeholder="Enter name" onChange={this.handleChangeName} />
+              Time: <FormControl type="number" value={this.state.time} placeholder="Enter time" onChange={this.handleChangeTime} />
+              Ingredients: <FormControl type="text" value={this.state.ingredients} placeholder="Enter name" onChange={this.handleChangeIngredients} />
+              Preparation: <FormControl componentClass="textarea" value={this.state.prepare} placeholder="Enter description" onChange={this.handleChangePrepare}/>
+            </FormGroup>
+          </form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button onClick={this.handleSubmit} bsStyle="primary">Save</Button><Button onClick={this.handleCancel}>Cancel</Button>
+        </Modal.Footer>
+      </Modal>
+      </div>
+    );
+  }
+});
+
+var Edit = React.createClass({
+  getInitialState: function(){
+    return {name:'',time: 0, ingredients: '',prepare: '',showModal: false}
+  },
+  componentWillReceiveProps: function(nextProps){
+    if(nextProps.showModal != this.state.showModal){
+      this.setState({
+        name: nextProps.recipe.name,
+        time: nextProps.recipe.time,
+        ingredients: nextProps.recipe.ingredients,
+        prepare: nextProps.recipe.prepare,
+        showModal: nextProps.showModal
+      })
+    }
+  },
+  closeModal: function(){
+    this.setState({
+      showModal: false
+    });
+  },
+  handleChangeName: function(e){
+    this.setState({name:e.target.value});
+  },
+  handleChangeTime: function(e){
+    this.setState({time:e.target.value});
+  },
+  handleChangeIngredients: function(e){
+    this.setState({ingredients:e.target.value});
+  },
+  handleChangePrepare: function(e){
+    this.setState({prepare: e.target.value});
+  },
+  handleSubmit: function(e){
+    this.props.onClick(this.state);
+    this.setState({
+      name: '',time: '',ingredients: '',prepare: '',showModal: false
+    });
+  },
+  handleCancel: function(){
+    this.setState({
+      name: '',time: '',ingredients: '',prepare: '',showModal: false
+    });
+  },
+  render : function(){
+    return(
+      <Modal show={this.state.showModal} onHide={this.closeModal}>
+        <Modal.Header>
+          <Modal.Title>Recipe</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <form>
+            <FormGroup>
+              Name:<FormControl type="text" value={this.state.name} placeholder="Enter name" onChange={this.handleChangeName} />
+              Time: <FormControl type="number" value={parseInt(this.state.time)} placeholder="Enter time" onChange={this.handleChangeTime} />
+              Ingredients: <FormControl type="text" value={this.state.ingredients} placeholder="Enter name" onChange={this.handleChangeIngredients} />
+              Preparation: <FormControl componentClass="textarea" value={this.state.prepare} placeholder="Enter description" onChange={this.handleChangePrepare}/>
+            </FormGroup>
+          </form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button onClick={this.handleSubmit} bsStyle="primary">Save</Button><Button onClick={this.handleCancel}>Cancel</Button>
+        </Modal.Footer>
+      </Modal>
+    );
+  }
+});
+
+var RecipeBook = React.createClass({
+    getInitialState: function(){
+        return {
+          content: this.props.content,
+          modalEdit: false,
+          current: 0
+        };
+    },
+    handleSubmit: function(newRecipe){
+      var con = this.state.content;
+      con.push({name:newRecipe.name,time:newRecipe.time,ingredients:newRecipe.ingredients,prepare:newRecipe.prepare});
+      this.setState({content:con});
+      localStorage.setItem("RecipeBookContent", JSON.stringify(this.state.content));
+    },
+    handleDelete: function(e){
+      var con = this.state.content;
+      con.splice(e.target.value,1);
+      this.setState({content:con});
+      localStorage.setItem("RecipeBookContent", JSON.stringify(this.state.content));
+    },
+    modalEditOn: function(e){
+      this.setState({modalEdit: true, current: e.target.value});
+      console.log(this.state.modalEdit);
+    },
+    handleEdit: function(editedRecipe){
+      console.log("A");
+      var con = this.state.content;
+      con[this.state.current]={name:editedRecipe.name,time:editedRecipe.time,ingredients:editedRecipe.ingredients,prepare:editedRecipe.prepare};
+      this.setState({content:con});
+      this.setState({modalEdit:false});
+      localStorage.setItem("RecipeBookContent", JSON.stringify(this.state.content));
+    },
+    render: function(){
+        var recipes = this.state.content.map(function(elem,idx){
+          var ingredients = elem.ingredients.split(",").map(function(ing){
+            return(
+              <li>{ing}</li>
+            );
+          });
+            return (
+              <Panel header={elem.name} eventKey={idx} bsStyle="primary">
+                <b>Time:</b> {elem.time} min<br /><b>Ingredients:</b><ul>{ingredients}</ul><b>Preparation:</b>{elem.prepare}<br /><br />
+                <Button value={idx} onClick={this.handleDelete} bsStyle="danger" bsClass="btn btn-danger pull-right btn-space">Delete</Button><Button value={idx} onClick={this.modalEditOn} bsClass="btn btn-default pull-right">Edit</Button>
+              </Panel>);
+        }.bind(this));
+        return (
+            <div>
+              <Accordion>
+                {recipes}
+              </Accordion>
+              <Add onClick={this.handleSubmit}/>
+              <Edit recipe={this.state.content[this.state.current]} showModal={this.state.modalEdit} onClick={this.handleEdit}/>
+            </div>
+        );
+    }
+});
+/*localStorage.removeItem("RecipeBookContent");*/
+ReactDOM.render(<RecipeBook content={content}/>, document.getElementById('book'));
